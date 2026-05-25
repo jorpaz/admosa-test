@@ -1,0 +1,45 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Build / compilado
+dist/
+*.tsbuildinfo
+
+# Variables de entorno (nunca commitear secretos)
+.env
+.env.local
+.env.*.local
+
+# Almacenamiento de archivos subidos (datos de runtime)
+backend/storage/*
+!backend/storage/.gitkeep
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Tests / cobertura
+coverage/
+
+# Angular (frontend)
+frontend/.angular/
+frontend/dist/
+
+# Lockfiles de otros gestores (el proyecto usa pnpm)
+package-lock.json
+yarn.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+*.swp
+*.swo
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

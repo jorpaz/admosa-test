@@ -28,13 +28,25 @@ export const requireAuth = asyncHandler(async (req: Request, _res: Response, nex
       u.is_active,
       r.code            AS role_code,
       u.area_id,
+      a.code            AS area_code,
+      a.name            AS area_name,
       COALESCE(
         (SELECT array_agg(am.area_id) FROM area_management am WHERE am.manager_id = u.id),
         ARRAY[]::uuid[]
-      ) AS managed_area_ids
+      ) AS managed_area_ids,
+      COALESCE(
+        (
+          SELECT array_agg(ar.name ORDER BY ar.name)
+          FROM area_management am
+          INNER JOIN areas ar ON ar.id = am.area_id
+          WHERE am.manager_id = u.id
+        ),
+        ARRAY[]::text[]
+      ) AS managed_area_names
     FROM sessions s
     INNER JOIN users u ON u.id = s.user_id
     INNER JOIN roles r ON r.id = u.role_id
+    LEFT JOIN areas a ON a.id = u.area_id
     WHERE s.id = $1
     `,
     [sessionId]
@@ -62,7 +74,10 @@ export const requireAuth = asyncHandler(async (req: Request, _res: Response, nex
     fullName: row.full_name,
     roleCode: row.role_code as RoleCode,
     areaId: row.area_id,
+    areaCode: row.area_code,
+    areaName: row.area_name,
     managedAreaIds: row.managed_area_ids || [],
+    managedAreaNames: row.managed_area_names || [],
   };
 
   req.user = user;

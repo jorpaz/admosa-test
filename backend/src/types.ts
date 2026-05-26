@@ -6,7 +6,10 @@ export interface AuthenticatedUser {
   fullName: string;
   roleCode: RoleCode;
   areaId: string | null;
+  areaCode: string | null;
+  areaName: string | null;
   managedAreaIds: string[];
+  managedAreaNames: string[];
 }
 
 export type AuditAction =

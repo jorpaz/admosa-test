@@ -101,7 +101,10 @@ export async function me(req: Request, res: Response): Promise<void> {
       fullName: u.fullName,
       roleCode: u.roleCode,
       areaId: u.areaId,
+      areaCode: u.areaCode,
+      areaName: u.areaName,
       managedAreaIds: u.managedAreaIds,
+      managedAreaNames: u.managedAreaNames,
     },
   });
 }

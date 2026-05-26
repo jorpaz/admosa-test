@@ -12,7 +12,7 @@ Prueba técnica para perfil senior. Plataforma web que permite la gestión segur
 
 ## Inicio rápido
 
-### Opción 1: Todo en Docker⭐
+### Opción 1: Todo en Docker
 
 **Pre-requisito**: Docker Desktop instalado.
 

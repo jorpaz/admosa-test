@@ -1,7 +1,7 @@
 # =====================================================================
 # Stage 1: build — compila TypeScript a JavaScript
 # =====================================================================
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ RUN pnpm prune --prod
 # =====================================================================
 # Stage 2: runtime — imagen mínima, no-root, solo lo necesario
 # =====================================================================
-FROM node:20-alpine AS runtime
+FROM node:22-alpine AS runtime
 
 WORKDIR /app
 

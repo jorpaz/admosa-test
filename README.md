@@ -35,7 +35,7 @@ El stack arranca en orden automáticamente:
 
 ### Opción 2: Desarrollo local sin Docker
 
-Pre-requisitos: Node.js 20+ y Postgres corriendo.
+Pre-requisitos: Node.js 22+ y Postgres corriendo.
 
 ```bash
 docker compose up -d postgres   # solo Postgres en contenedor

@@ -41,10 +41,10 @@ RUN mkdir -p /app/storage && chown admosa:admosa /app/storage
 
 USER admosa
 
-EXPOSE 3000
+EXPOSE 4000
 
 # Healthcheck para que docker compose sepa cuando está listo
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+    CMD node -e "require('http').get('http://localhost:4000/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
 CMD ["node", "dist/server.js"]

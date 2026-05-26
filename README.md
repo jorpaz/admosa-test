@@ -20,8 +20,8 @@ Prueba técnica para perfil senior. Plataforma web que permite la gestión segur
 # Un solo comando levanta todo:
 docker compose up --build
 
-# Cuando veas "ADMOSA Backend listening on :3000" → todo listo.
-# Backend:  http://localhost:3000
+# Cuando veas "ADMOSA Backend listening on :4000" → todo listo.
+# Backend:  http://localhost:4000
 # Adminer:  http://localhost:8080  (user: admosa, pass: admosa, db: admosa_test)
 ```
 

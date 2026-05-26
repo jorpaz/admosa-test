@@ -53,15 +53,16 @@ services:
         condition: service_completed_successfully
     environment:
       NODE_ENV: production
-      PORT: 3000
+      PORT: 4000
       DATABASE_URL: postgresql://admosa:admosa@postgres:5432/admosa_test
       SESSION_SECRET: demo-secret-cambiar-en-produccion-este-string-tiene-mas-de-32-chars
       SESSION_MAX_AGE_MS: 14400000
       FRONTEND_URL: http://localhost:4200
       STORAGE_PATH: /app/storage
       MAX_FILE_SIZE_BYTES: 52428800
+      LOGIN_RATE_LIMIT_MAX: 500
     ports:
-      - "3000:3000"
+      - "4000:4000"
     volumes:
       # Persistir archivos fuera del contenedor (sobreviven a rebuilds)
       - admosa_storage:/app/storage

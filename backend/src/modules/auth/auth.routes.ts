@@ -4,12 +4,14 @@ import { login, logout, me } from './auth.controller';
 import { requireAuth } from '../../middleware/auth';
 import { asyncHandler } from '../../utils/asyncHandler';
 
+import { env } from '../../config/env';
+
 const router = Router();
 
-// Rate limit estricto en login — defensa contra fuerza bruta
+// Rate limit en login — más permisivo en desarrollo/demo (configurable vía .env)
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: env.LOGIN_RATE_LIMIT_WINDOW_MS,
+  max: env.LOGIN_RATE_LIMIT_MAX,
   message: { error: { code: 'RATE_LIMITED', message: 'Demasiados intentos. Espera 15 minutos.' } },
   standardHeaders: true,
   legacyHeaders: false,

@@ -28,6 +28,10 @@
       <span>Archivos visibles</span>
     </div>
     <div class="stat-card">
+      <strong>{{ auth.user() ? workspaceLabel(auth.user()!) : '—' }}</strong>
+      <span>Área de trabajo</span>
+    </div>
+    <div class="stat-card">
       <strong>{{ auth.user()?.roleCode ?? '—' }}</strong>
       <span>Rol activo</span>
     </div>

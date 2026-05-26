@@ -26,6 +26,24 @@ export function formatDate(value: string): string {
   }).format(new Date(value));
 }
 
+/** Etiqueta legible del área de trabajo según rol. */
+export function workspaceLabel(user: User): string {
+  switch (user.roleCode) {
+    case 'ADMIN':
+      return 'Todas las áreas';
+    case 'MANAGER': {
+      const names = user.managedAreaNames ?? [];
+      if (names.length > 0) return names.join(' · ');
+      const count = user.managedAreaIds?.length ?? 0;
+      return count > 0 ? `${count} áreas gestionadas` : 'Sin áreas asignadas';
+    }
+    default:
+      if (user.areaName) return user.areaName;
+      if (user.areaId) return 'Área asignada';
+      return 'Sin área asignada';
+  }
+}
+
 export function roleBadgeColor(role: RoleCode): string {
   switch (role) {
     case 'ADMIN':

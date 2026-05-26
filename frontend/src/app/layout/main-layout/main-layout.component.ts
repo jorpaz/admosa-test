@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AuthService } from '../../core/services/auth.service';
-import { roleBadgeColor } from '../../core/utils/helpers';
+import { roleBadgeColor, workspaceLabel } from '../../core/utils/helpers';
 import { ROLE_LABELS, RoleCode } from '../../core/models';
 
 @Component({
@@ -34,6 +34,7 @@ export class MainLayoutComponent {
   readonly sidenavOpened = signal(true);
   readonly isHandset = signal(false);
   readonly roleLabels = ROLE_LABELS;
+  readonly workspaceLabel = workspaceLabel;
 
   constructor() {
     this.breakpoint.observe([Breakpoints.Handset]).subscribe((result) => {

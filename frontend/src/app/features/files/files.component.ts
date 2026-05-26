@@ -9,7 +9,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { AuthService } from '../../core/services/auth.service';
 import { FilesService } from '../../core/services/files.service';
 import { FileItem } from '../../core/models';
-import { canDeleteFile, formatBytes, formatDate } from '../../core/utils/helpers';
+import { canDeleteFile, formatBytes, formatDate, workspaceLabel } from '../../core/utils/helpers';
 
 @Component({
   selector: 'app-files',
@@ -45,6 +45,7 @@ export class FilesComponent implements OnInit {
 
   readonly formatBytes = formatBytes;
   readonly formatDate = formatDate;
+  readonly workspaceLabel = workspaceLabel;
 
   ngOnInit(): void {
     this.refresh();

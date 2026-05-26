@@ -12,6 +12,16 @@
       </div>
     </div>
 
+    @if (auth.user(); as user) {
+      <div class="sidenav-workspace">
+        <mat-icon>apartment</mat-icon>
+        <div>
+          <span class="workspace-label">Área de trabajo</span>
+          <strong>{{ workspaceLabel(user) }}</strong>
+        </div>
+      </div>
+    }
+
     <mat-nav-list>
       <a mat-list-item routerLink="/files" routerLinkActive="active">
         <mat-icon matListItemIcon>folder</mat-icon>
@@ -40,7 +50,10 @@
 
       @if (auth.user(); as user) {
         <div class="user-chip">
-          <span class="user-name">{{ user.fullName }}</span>
+          <div class="user-meta">
+            <span class="user-name">{{ user.fullName }}</span>
+            <span class="user-area">{{ workspaceLabel(user) }}</span>
+          </div>
           <span class="role-badge" [style.background]="roleColor(user.roleCode)">
             {{ roleLabels[user.roleCode] }}
           </span>

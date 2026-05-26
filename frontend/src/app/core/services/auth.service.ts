@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap, finalize } from 'rxjs/operators';
+import { switchMap, tap, finalize } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { User } from '../models';
 
@@ -16,12 +16,10 @@ export class AuthService {
   login(email: string, password: string) {
     this.loading.set(true);
     return this.http
-      .post<{ user: User }>(`${environment.apiUrl}/auth/login`, { email, password })
+      .post(`${environment.apiUrl}/auth/login`, { email, password })
       .pipe(
-        tap({
-          next: ({ user }) => this.user.set(user),
-          finalize: () => this.loading.set(false),
-        })
+        switchMap(() => this.loadMe()),
+        finalize(() => this.loading.set(false))
       );
   }
 

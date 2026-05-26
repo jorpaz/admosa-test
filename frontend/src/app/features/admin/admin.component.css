@@ -1,0 +1,49 @@
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: 24px;
+}
+
+.create-card,
+.users-card {
+  padding: 24px;
+}
+
+.create-card h2,
+.users-card h2 {
+  margin: 0 0 20px;
+  color: #0d47a1;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.loading-state {
+  display: grid;
+  place-items: center;
+  padding: 48px;
+}
+
+.users-table {
+  width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

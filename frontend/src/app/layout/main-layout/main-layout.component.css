@@ -1,0 +1,86 @@
+.shell {
+  min-height: 100vh;
+}
+
+.app-sidenav {
+  width: 260px;
+  border-right: 1px solid rgba(13, 71, 161, 0.08);
+  background: linear-gradient(180deg, #ffffff 0%, #f5f9fd 100%);
+}
+
+.sidenav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(13, 71, 161, 0.08);
+}
+
+.sidenav-brand mat-icon {
+  color: #1565c0;
+  background: rgba(21, 101, 192, 0.1);
+  border-radius: 12px;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+}
+
+.sidenav-brand strong {
+  display: block;
+  color: #0d47a1;
+}
+
+.sidenav-brand span {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 0.75rem;
+}
+
+a.active {
+  background: rgba(21, 101, 192, 0.1) !important;
+  color: #0d47a1;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 4px 20px rgba(13, 71, 161, 0.12);
+}
+
+.toolbar-title {
+  font-weight: 500;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 8px;
+}
+
+.user-name {
+  font-size: 0.875rem;
+}
+
+.role-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  color: white;
+  font-weight: 500;
+}
+
+.content-area {
+  min-height: calc(100vh - 64px);
+}
+
+@media (max-width: 768px) {
+  .user-name {
+    display: none;
+  }
+}

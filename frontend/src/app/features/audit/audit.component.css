@@ -1,0 +1,16 @@
+.loading-state {
+  display: grid;
+  place-items: center;
+  padding: 48px;
+}
+
+.audit-table {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .audit-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

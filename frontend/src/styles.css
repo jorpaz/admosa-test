@@ -1,0 +1,89 @@
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: linear-gradient(160deg, #e8f4fc 0%, #f5f8fb 45%, #eef2f7 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.page-shell {
+  padding: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+  font-weight: 500;
+  color: #0d47a1;
+}
+
+.page-header p {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(13, 71, 161, 0.08);
+  box-shadow: 0 8px 24px rgba(13, 71, 161, 0.06);
+}
+
+.stat-card strong {
+  display: block;
+  font-size: 1.5rem;
+  color: #1565c0;
+}
+
+.stat-card span {
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 0.875rem;
+}
+
+.content-card {
+  border-radius: 20px !important;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(13, 71, 161, 0.08) !important;
+  border: 1px solid rgba(13, 71, 161, 0.06);
+}
+
+.full-width {
+  width: 100%;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  color: #64b5f6;
+}

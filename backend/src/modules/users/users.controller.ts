@@ -7,13 +7,23 @@ import { ConflictError, NotFoundError } from '../../utils/errors';
 
 const BCRYPT_ROUNDS = 12;
 
-const createSchema = z.object({
-  email: z.string().email().max(255).toLowerCase().trim(),
-  fullName: z.string().min(2).max(128),
-  password: z.string().min(8).max(128),
-  roleCode: z.enum(['USER', 'CHIEF', 'MANAGER', 'ADMIN']),
-  areaId: z.string().uuid().nullable().optional(),
-});
+const createSchema = z
+  .object({
+    email: z.string().email().max(255).toLowerCase().trim(),
+    fullName: z.string().min(2).max(128),
+    password: z.string().min(8).max(128),
+    roleCode: z.enum(['USER', 'CHIEF', 'MANAGER', 'ADMIN']),
+    areaId: z.string().uuid().nullable().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if ((data.roleCode === 'USER' || data.roleCode === 'CHIEF') && !data.areaId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Usuario y Jefe de área deben tener un área asignada',
+        path: ['areaId'],
+      });
+    }
+  });
 
 const updateSchema = z.object({
   fullName: z.string().min(2).max(128).optional(),

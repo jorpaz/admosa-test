@@ -1,12 +1,53 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { pool } from '../../config/db';
-import { getAuditScope, buildFileScopeClause } from '../../services/permissionService';
+import { getAuditScope } from '../../services/permissionService';
+import {
+  appendAuditListFilters,
+  buildAuditScopeQuery,
+  mapAuditRow,
+} from './audit.repository';
 
-const querySchema = z.object({
-  limit: z.coerce.number().int().min(1).max(200).default(50),
+const listQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(200).default(25),
   offset: z.coerce.number().int().min(0).default(0),
+  userId: z.string().uuid().optional(),
+  action: z.string().min(1).max(64).optional(),
+  areaId: z.string().uuid().optional(),
 });
+
+const AUDIT_FROM = `
+  FROM audit_log al
+  LEFT JOIN users u ON u.id = al.user_id
+  LEFT JOIN files f ON f.id = al.file_id
+`;
+
+function parseListQuery(req: Request) {
+  const parsed = listQuerySchema.parse(req.query);
+  return {
+    limit: parsed.limit,
+    offset: parsed.offset,
+    filters: {
+      userId: parsed.userId,
+      action: parsed.action,
+      areaId: parsed.areaId,
+    },
+  };
+}
+
+function resolveAuditScopeOnly(req: Request) {
+  const scope = getAuditScope(req.user!);
+  return buildAuditScopeQuery(scope);
+}
+
+function resolveScopedQuery(req: Request) {
+  const base = resolveAuditScopeOnly(req);
+  if (!base) {
+    return null;
+  }
+  const { filters } = parseListQuery(req);
+  return appendAuditListFilters(base, filters);
+}
 
 /**
  * Devuelve el historial de acciones aplicando el scope del rol.
@@ -16,47 +57,23 @@ const querySchema = z.object({
  * son visibles para ADMIN.
  */
 export async function listAudit(req: Request, res: Response): Promise<void> {
-  const { limit, offset } = querySchema.parse(req.query);
-  const user = req.user!;
-  const scope = getAuditScope(user);
+  const { limit, offset } = parseListQuery(req);
+  const scoped = resolveScopedQuery(req);
 
-  if (scope.kind === 'none') {
+  if (!scoped) {
     res.json({ entries: [], total: 0 });
     return;
   }
 
-  // Construimos WHERE según el scope
-  const params: unknown[] = [];
-  let whereClause: string;
+  const { whereClause, params } = scoped;
 
-  if (scope.kind === 'all') {
-    whereClause = 'TRUE';
-  } else if (scope.kind === 'own') {
-    // Usuario: solo sus propias acciones
-    params.push(scope.userId);
-    whereClause = `al.user_id = $${params.length}`;
-  } else {
-    // CHIEF / MANAGER: acciones sobre archivos de su(s) área(s)
-    // Esto excluye acciones sin file_id (LOGIN, LOGOUT) — por diseño.
-    const clause = buildFileScopeClause(scope, 'f', params.length + 1);
-    if (!clause) {
-      res.json({ entries: [], total: 0 });
-      return;
-    }
-    params.push(...clause.params);
-    whereClause = `al.file_id IS NOT NULL AND (${clause.clause})`;
-  }
-
-  // Total
   const countSql = `
     SELECT COUNT(*)::int AS total
-    FROM audit_log al
-    LEFT JOIN files f ON f.id = al.file_id
+    ${AUDIT_FROM}
     WHERE ${whereClause}
   `;
   const { rows: countRows } = await pool.query(countSql, params);
 
-  // Datos
   const dataSql = `
     SELECT
       al.id,
@@ -64,14 +81,12 @@ export async function listAudit(req: Request, res: Response): Promise<void> {
       al.metadata,
       al.occurred_at,
       al.ip_address,
-      u.id   AS user_id,
+      u.id AS user_id,
       u.email AS user_email,
       u.full_name AS user_name,
       al.file_id,
       f.original_name AS file_name
-    FROM audit_log al
-    LEFT JOIN users u ON u.id = al.user_id
-    LEFT JOIN files f ON f.id = al.file_id
+    ${AUDIT_FROM}
     WHERE ${whereClause}
     ORDER BY al.occurred_at DESC
     LIMIT ${limit} OFFSET ${offset}
@@ -80,16 +95,59 @@ export async function listAudit(req: Request, res: Response): Promise<void> {
 
   res.json({
     total: countRows[0].total,
-    entries: rows.map((r) => ({
+    entries: rows.map(mapAuditRow),
+  });
+}
+
+/** Opciones de filtro disponibles dentro del alcance del rol. */
+export async function getAuditFilters(req: Request, res: Response): Promise<void> {
+  const scoped = resolveAuditScopeOnly(req);
+
+  if (!scoped) {
+    res.json({ users: [], actions: [], areas: [] });
+    return;
+  }
+
+  const { whereClause, params } = scoped;
+
+  const usersSql = `
+    SELECT DISTINCT u.id, u.full_name, u.email
+    ${AUDIT_FROM}
+    WHERE ${whereClause} AND u.id IS NOT NULL
+    ORDER BY u.full_name
+  `;
+
+  const actionsSql = `
+    SELECT DISTINCT al.action
+    ${AUDIT_FROM}
+    WHERE ${whereClause}
+    ORDER BY al.action
+  `;
+
+  const areasSql = `
+    SELECT DISTINCT f.area_id AS id, a.name
+    ${AUDIT_FROM}
+    LEFT JOIN areas a ON a.id = f.area_id
+    WHERE ${whereClause} AND f.area_id IS NOT NULL
+    ORDER BY a.name
+  `;
+
+  const [usersResult, actionsResult, areasResult] = await Promise.all([
+    pool.query(usersSql, params),
+    pool.query(actionsSql, params),
+    pool.query(areasSql, params),
+  ]);
+
+  res.json({
+    users: usersResult.rows.map((r) => ({
       id: r.id,
-      action: r.action,
-      metadata: r.metadata,
-      occurredAt: r.occurred_at,
-      ipAddress: r.ip_address,
-      user: r.user_id
-        ? { id: r.user_id, email: r.user_email, fullName: r.user_name }
-        : null,
-      file: r.file_id ? { id: r.file_id, name: r.file_name } : null,
+      fullName: r.full_name,
+      email: r.email,
+    })),
+    actions: actionsResult.rows.map((r) => r.action as string),
+    areas: areasResult.rows.map((r) => ({
+      id: r.id,
+      name: r.name,
     })),
   });
 }

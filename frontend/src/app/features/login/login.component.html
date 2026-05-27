@@ -3,13 +3,8 @@
 
   <mat-card class="login-card">
     <div class="brand">
-      <div class="brand-icon">
-        <mat-icon>shield_lock</mat-icon>
-      </div>
-      <div>
-        <h1>ADMOSA</h1>
-        <p>Gestión segura de archivos por rol y área</p>
-      </div>
+      <app-brand-logo size="lg" />
+      <p>{{ brandTagline }}</p>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()">

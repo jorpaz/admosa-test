@@ -6,10 +6,19 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
 import { FilesService } from '../../core/services/files.service';
-import { FileItem } from '../../core/models';
-import { canDeleteFile, formatBytes, formatDate, workspaceLabel } from '../../core/utils/helpers';
+import { FileItem, ROLE_LABELS } from '../../core/models';
+import {
+  canDeleteFile,
+  deleteBlockedReason,
+  formatBytes,
+  formatDate,
+  isOwnFile,
+  permissionsHint,
+  workspaceLabel,
+} from '../../core/utils/helpers';
 
 @Component({
   selector: 'app-files',
@@ -21,6 +30,7 @@ import { canDeleteFile, formatBytes, formatDate, workspaceLabel } from '../../co
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatChipsModule,
+    MatTooltipModule,
   ],
   templateUrl: './files.component.html',
   styleUrl: './files.component.css',
@@ -46,6 +56,10 @@ export class FilesComponent implements OnInit {
   readonly formatBytes = formatBytes;
   readonly formatDate = formatDate;
   readonly workspaceLabel = workspaceLabel;
+  readonly permissionsHint = permissionsHint;
+  readonly deleteBlockedReason = deleteBlockedReason;
+  readonly isOwnFile = isOwnFile;
+  readonly roleLabels = ROLE_LABELS;
 
   ngOnInit(): void {
     this.refresh();

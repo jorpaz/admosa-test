@@ -32,10 +32,17 @@
       <span>Área de trabajo</span>
     </div>
     <div class="stat-card">
-      <strong>{{ auth.user()?.roleCode ?? '—' }}</strong>
+      <strong>{{ auth.user() ? roleLabels[auth.user()!.roleCode] : '—' }}</strong>
       <span>Rol activo</span>
     </div>
   </div>
+
+  @if (auth.user(); as user) {
+    <div class="permissions-banner">
+      <mat-icon>info</mat-icon>
+      <p>{{ permissionsHint(user) }}</p>
+    </div>
+  }
 
   <mat-card class="content-card">
     @if (loading()) {
@@ -63,13 +70,20 @@
 
         <ng-container matColumnDef="owner">
           <th mat-header-cell *matHeaderCellDef>Propietario</th>
-          <td mat-cell *matCellDef="let file">{{ file.ownerName }}</td>
+          <td mat-cell *matCellDef="let file">
+            <div class="owner-cell">
+              <span class="owner-name" [title]="file.ownerName">{{ file.ownerName }}</span>
+              @if (auth.user() && isOwnFile(auth.user()!, file)) {
+                <span class="own-badge">Propio</span>
+              }
+            </div>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="area">
           <th mat-header-cell *matHeaderCellDef>Área</th>
           <td mat-cell *matCellDef="let file">
-            <mat-chip>{{ file.areaName ?? '—' }}</mat-chip>
+            <mat-chip class="area-chip">{{ file.areaName ?? '—' }}</mat-chip>
           </td>
         </ng-container>
 
@@ -86,14 +100,45 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Acciones</th>
           <td mat-cell *matCellDef="let file">
-            <button mat-icon-button color="primary" (click)="download(file)" aria-label="Descargar">
-              <mat-icon>download</mat-icon>
-            </button>
-            @if (canDelete(file)) {
-              <button mat-icon-button color="warn" (click)="delete(file)" aria-label="Eliminar">
-                <mat-icon>delete</mat-icon>
+            <div class="actions-cell">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="download(file)"
+                matTooltip="Descargar archivo"
+                aria-label="Descargar"
+              >
+                <mat-icon>download</mat-icon>
               </button>
-            }
+              @if (auth.user(); as user) {
+                @if (canDelete(file)) {
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    (click)="delete(file)"
+                    matTooltip="Eliminar archivo"
+                    aria-label="Eliminar"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                } @else {
+                  <span
+                    class="delete-tooltip-wrap"
+                    [matTooltip]="deleteBlockedReason(user, file) ?? ''"
+                    matTooltipPosition="above"
+                  >
+                    <button
+                      mat-icon-button
+                      disabled
+                      aria-label="Eliminar no permitido"
+                      class="delete-disabled"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </span>
+                }
+              }
+            </div>
           </td>
         </ng-container>
 

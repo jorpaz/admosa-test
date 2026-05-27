@@ -5,11 +5,8 @@
     class="app-sidenav"
   >
     <div class="sidenav-brand">
-      <mat-icon>shield_lock</mat-icon>
-      <div>
-        <strong>ADMOSA</strong>
-        <span>Secure Files</span>
-      </div>
+      <app-brand-logo size="md" />
+      <span class="sidenav-tagline">Secure Files</span>
     </div>
 
     @if (auth.user(); as user) {

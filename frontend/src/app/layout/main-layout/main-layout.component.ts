@@ -10,6 +10,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AuthService } from '../../core/services/auth.service';
 import { roleBadgeColor, workspaceLabel } from '../../core/utils/helpers';
 import { ROLE_LABELS, RoleCode } from '../../core/models';
+import { BrandLogoComponent } from '../../shared/brand-logo/brand-logo.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -23,6 +24,7 @@ import { ROLE_LABELS, RoleCode } from '../../core/models';
     MatIconModule,
     MatButtonModule,
     MatChipsModule,
+    BrandLogoComponent,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.css',

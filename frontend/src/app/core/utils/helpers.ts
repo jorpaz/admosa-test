@@ -12,6 +12,40 @@ export function canDeleteFile(user: User, file: FileItem): boolean {
   }
 }
 
+/** Texto de ayuda según el rol activo (banner de permisos). */
+export function permissionsHint(user: User): string {
+  switch (user.roleCode) {
+    case 'USER':
+      return 'Solo ves tus archivos. Puedes descargar y eliminar únicamente los que subiste.';
+    case 'CHIEF':
+      return 'Ves los archivos de tu área y puedes descargarlos. Solo puedes eliminar los que subiste tú.';
+    case 'MANAGER':
+      return 'Ves archivos de tus áreas gestionadas. Puedes descargar y eliminar los de tu alcance.';
+    case 'ADMIN':
+      return 'Ves todos los archivos. Puedes descargar y eliminar cualquiera.';
+  }
+}
+
+/** Motivo por el que no se puede eliminar; null si sí puede. */
+export function deleteBlockedReason(user: User, file: FileItem): string | null {
+  if (canDeleteFile(user, file)) return null;
+
+  switch (user.roleCode) {
+    case 'USER':
+      return 'Solo puedes eliminar archivos que hayas subido tú.';
+    case 'CHIEF':
+      return 'Puedes ver y descargar archivos de tu área, pero solo eliminar los propios.';
+    case 'MANAGER':
+      return 'Este archivo está fuera de las áreas que gestionas.';
+    default:
+      return 'No tienes permiso para eliminar este archivo.';
+  }
+}
+
+export function isOwnFile(user: User, file: FileItem): boolean {
+  return file.ownerId === user.id;
+}
+
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB'];

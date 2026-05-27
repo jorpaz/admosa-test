@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/services/auth.service';
+import { BRAND } from '../../core/constants/brand';
+import { BrandLogoComponent } from '../../shared/brand-logo/brand-logo.component';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +21,7 @@ import { AuthService } from '../../core/services/auth.service';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    BrandLogoComponent,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
@@ -28,6 +31,7 @@ export class LoginComponent {
   protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
+  readonly brandTagline = BRAND.tagline;
   readonly hidePassword = signal(true);
   readonly error = signal('');
 

@@ -18,6 +18,30 @@
   gap: 8px;
 }
 
+.permissions-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: rgba(21, 101, 192, 0.08);
+  border: 1px solid rgba(21, 101, 192, 0.14);
+}
+
+.permissions-banner mat-icon {
+  color: #1565c0;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.permissions-banner p {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.72);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -30,6 +54,15 @@
   width: 100%;
 }
 
+.files-table .mat-column-owner {
+  min-width: 148px;
+  max-width: 200px;
+}
+
+.files-table .mat-column-area {
+  min-width: 120px;
+}
+
 .file-name {
   display: flex;
   align-items: center;
@@ -38,6 +71,60 @@
 
 .file-name mat-icon {
   color: #1565c0;
+}
+
+.owner-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.owner-name {
+  font-weight: 500;
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.87);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.own-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1565c0;
+  background: rgba(21, 101, 192, 0.08);
+  border: 1px solid rgba(21, 101, 192, 0.14);
+  line-height: 1.5;
+}
+
+.area-chip {
+  --mdc-chip-label-text-size: 0.75rem;
+  min-height: 26px !important;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.delete-disabled mat-icon {
+  opacity: 0.38;
+}
+
+.delete-tooltip-wrap {
+  display: inline-flex;
+  align-items: center;
+  cursor: not-allowed;
 }
 
 @media (max-width: 900px) {

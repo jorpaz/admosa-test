@@ -63,7 +63,7 @@
           <td mat-cell *matCellDef="let file">
             <div class="file-name">
               <mat-icon>description</mat-icon>
-              <span>{{ file.originalName }}</span>
+              <span class="file-name-text" [title]="file.originalName">{{ file.originalName }}</span>
             </div>
           </td>
         </ng-container>

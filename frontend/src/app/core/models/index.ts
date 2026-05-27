@@ -35,6 +35,20 @@ export interface AuditEntry {
   file: { id: string; name: string } | null;
 }
 
+export interface AuditFilters {
+  users: { id: string; fullName: string; email: string }[];
+  actions: string[];
+  areas: { id: string; name: string }[];
+}
+
+export interface AuditListParams {
+  limit?: number;
+  offset?: number;
+  userId?: string;
+  action?: string;
+  areaId?: string;
+}
+
 export interface AdminUser {
   id: string;
   email: string;

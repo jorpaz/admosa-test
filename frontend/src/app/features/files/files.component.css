@@ -52,25 +52,76 @@
 
 .files-table {
   width: 100%;
+  min-width: 980px;
+  table-layout: fixed;
+}
+
+.files-table .mat-mdc-header-cell,
+.files-table .mat-mdc-cell {
+  padding-right: 20px;
+  vertical-align: middle;
+}
+
+.files-table .mat-column-name {
+  width: 280px;
+  min-width: 280px;
 }
 
 .files-table .mat-column-owner {
-  min-width: 148px;
-  max-width: 200px;
+  width: 168px;
+  min-width: 168px;
 }
 
 .files-table .mat-column-area {
-  min-width: 120px;
+  width: 140px;
+  min-width: 140px;
+}
+
+.files-table .mat-column-size {
+  width: 100px;
+  min-width: 100px;
+}
+
+.files-table .mat-column-uploadedAt {
+  width: 188px;
+  min-width: 188px;
+}
+
+.files-table .mat-column-actions {
+  width: 104px;
+  min-width: 104px;
+}
+
+.files-table .mat-column-uploadedAt.mat-mdc-cell {
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.files-table .mat-column-size.mat-mdc-cell {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.content-card {
+  overflow-x: auto;
 }
 
 .file-name {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+}
+
+.file-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .file-name mat-icon {
   color: #1565c0;
+  flex-shrink: 0;
 }
 
 .owner-cell {
@@ -125,11 +176,4 @@
   display: inline-flex;
   align-items: center;
   cursor: not-allowed;
-}
-
-@media (max-width: 900px) {
-  .files-table {
-    display: block;
-    overflow-x: auto;
-  }
 }

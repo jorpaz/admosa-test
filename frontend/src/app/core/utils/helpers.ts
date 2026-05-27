@@ -78,6 +78,19 @@ export function workspaceLabel(user: User): string {
   }
 }
 
+export function auditScopeHint(user: User): string {
+  switch (user.roleCode) {
+    case 'USER':
+      return 'Ves únicamente tus propias acciones registradas en la plataforma.';
+    case 'CHIEF':
+      return 'Ves acciones sobre archivos de tu área. Filtra por usuario o tipo de acción para revisar la actividad.';
+    case 'MANAGER':
+      return 'Ves acciones sobre archivos de tus áreas gestionadas. Filtra por usuario, área o tipo de acción.';
+    case 'ADMIN':
+      return 'Ves todo el historial del sistema, incluyendo inicios de sesión y gestión de usuarios.';
+  }
+}
+
 export function roleBadgeColor(role: RoleCode): string {
   switch (role) {
     case 'ADMIN':

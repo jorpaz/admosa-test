@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
@@ -57,7 +57,31 @@ export class AdminComponent implements OnInit {
     areaId: [''],
   });
 
+  readonly selectedRole = signal<RoleCode>('USER');
+
+  readonly isAreaRequired = computed(() => {
+    const role = this.selectedRole();
+    return role === 'USER' || role === 'CHIEF';
+  });
+
+  readonly showAreaField = computed(() => this.selectedRole() !== 'ADMIN');
+
   ngOnInit(): void {
+    this.createForm.controls.roleCode.valueChanges.subscribe((role) => {
+      this.selectedRole.set(role);
+      const areaControl = this.createForm.controls.areaId;
+      if (role === 'USER' || role === 'CHIEF') {
+        areaControl.setValidators([Validators.required]);
+      } else {
+        areaControl.clearValidators();
+        if (role === 'ADMIN') {
+          areaControl.setValue('');
+        }
+      }
+      areaControl.updateValueAndValidity();
+    });
+    this.selectedRole.set(this.createForm.controls.roleCode.value);
+    this.createForm.controls.roleCode.updateValueAndValidity({ emitEvent: true });
     this.reload();
   }
 

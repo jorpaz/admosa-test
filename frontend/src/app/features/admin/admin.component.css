@@ -1,12 +1,20 @@
 .admin-grid {
   display: grid;
-  grid-template-columns: minmax(280px, 380px) 1fr;
+  grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
   gap: 24px;
+}
+
+.admin-grid > * {
+  min-width: 0;
 }
 
 .create-card,
 .users-card {
   padding: 24px;
+}
+
+.users-card {
+  overflow: visible !important;
 }
 
 .create-card h2,
@@ -19,6 +27,36 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  align-items: start;
+}
+
+.form-row--single {
+  grid-template-columns: 1fr;
+}
+
+.role-scope-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 56px;
+  margin-bottom: 8px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(21, 101, 192, 0.08);
+  border: 1px solid rgba(21, 101, 192, 0.14);
+}
+
+.role-scope-hint mat-icon {
+  color: #1565c0;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.role-scope-hint p {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.72);
+  font-size: 0.875rem;
+  line-height: 1.45;
 }
 
 .card-title-row {
@@ -34,8 +72,68 @@
   padding: 48px;
 }
 
-.users-table {
+.users-table-scroll {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.users-table {
+  width: max-content;
+  min-width: 1040px;
+  table-layout: fixed;
+}
+
+.users-table .mat-mdc-header-cell,
+.users-table .mat-mdc-cell {
+  padding-right: 20px;
+  vertical-align: middle;
+}
+
+.users-table .mat-column-fullName {
+  width: 168px;
+  min-width: 168px;
+}
+
+.users-table .mat-column-email {
+  width: 220px;
+  min-width: 220px;
+}
+
+.users-table .mat-column-role {
+  width: 148px;
+  min-width: 148px;
+}
+
+.users-table .mat-column-area {
+  width: 140px;
+  min-width: 140px;
+}
+
+.users-table .mat-column-status {
+  width: 132px;
+  min-width: 132px;
+}
+
+.users-table .mat-column-createdAt {
+  width: 188px;
+  min-width: 188px;
+}
+
+.users-table .mat-column-fullName.mat-mdc-cell,
+.users-table .mat-column-email.mat-mdc-cell,
+.users-table .mat-column-area.mat-mdc-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.users-table .mat-column-createdAt.mat-mdc-cell {
+  white-space: nowrap;
+  font-size: 0.875rem;
 }
 
 @media (max-width: 1100px) {

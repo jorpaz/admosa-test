@@ -48,16 +48,43 @@ pnpm run dev                    # backend con hot reload
 
 ### Usuarios de prueba
 
-Todos comparten password: **`Admosa2025!`**
+**Password para todos:** `Admosa2025!`
 
-| Email | Rol | Área | Notas |
-|---|---|---|---|
-| `user@admosa.test` | Usuario | OPS | Solo ve sus propios archivos |
-| `chief@admosa.test` | Jefe de área | OPS | Ve archivos de OPS; elimina solo los suyos |
-| `manager@admosa.test` | Gerente | — | Gestiona OPS y FIN (no COMM) |
-| `admin@admosa.test` | Administrador | — | Acceso total |
+**Frontend:** http://localhost:4200 · **API:** http://localhost:4000
 
-**Usuarios adicionales** para verificar aislamiento: `user2@`, `user3@`, `chief2@`, `user4@` (ver `src/db/seed.ts`).
+#### Áreas del sistema
+
+| Código | Nombre en la app |
+|---|---|
+| OPS | Operaciones |
+| FIN | Finanzas |
+| COMM | Comercial |
+
+#### Usuarios principales (demo / evaluación)
+
+Estos son los 4 roles requeridos por el enunciado. En la UI verás el **nombre completo** en la barra superior.
+
+| Nombre (UI) | Email | Rol | Área / alcance | Para probar |
+|---|---|---|---|---|
+| **Ana Usuario** | `user@admosa.test` | Usuario | Operaciones | Solo ve/descarga/elimina **sus** archivos |
+| **Bruno Jefe** | `chief@admosa.test` | Jefe de área | Operaciones | Ve archivos de OPS; elimina **solo los suyos** |
+| **Carla Gerente** | `manager@admosa.test` | Gerente | Gestiona Operaciones + Finanzas | Ve/elimina archivos de esas áreas (no Comercial) |
+| **Diego Admin** | `admin@admosa.test` | Administrador | Todas las áreas | Acceso total + panel de administración |
+
+> **Nota:** Gerente y Administrador no tienen área personal asignada. Carla gestiona áreas vía `area_management`; Diego ve todo el sistema.
+
+#### Usuarios extra (aislamiento entre áreas)
+
+Útiles para validar que un usuario **no** ve archivos fuera de su scope. Misma password.
+
+| Nombre (UI) | Email | Rol | Área | Para probar |
+|---|---|---|---|---|
+| **Eva Usuario** | `user2@admosa.test` | Usuario | Operaciones | Misma área que Ana, pero **no** ve sus archivos |
+| **Felipe Usuario** | `user3@admosa.test` | Usuario | Finanzas | Área distinta a Operaciones |
+| **Gabriela Jefe FIN** | `chief2@admosa.test` | Jefe de área | Finanzas | Jefe de otra área (no ve OPS) |
+| **Hugo Usuario** | `user4@admosa.test` | Usuario | Comercial | Área sin gerente asignado |
+
+**Escenario rápido:** inicia sesión como `user@admosa.test` (Ana), sube un archivo, cierra sesión e ingresa como `user2@admosa.test` (Eva) → Eva **no** debería ver el archivo de Ana.
 
 ## Arquitectura
 

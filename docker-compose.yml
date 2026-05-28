@@ -9,9 +9,6 @@
 # Adminer solo debug: docker compose --profile debug up -d
 # =====================================================================
 
-x-db-url: &db-url
-  postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -39,7 +36,11 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: *db-url
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
       FRONTEND_URL: ${FRONTEND_URL:?FRONTEND_URL is required}
     command: sh -c "node dist/db/migrate.js && node dist/db/seed.js"
@@ -59,7 +60,11 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: *db-url
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
       SESSION_MAX_AGE_MS: ${SESSION_MAX_AGE_MS:-14400000}
       FRONTEND_URL: ${FRONTEND_URL:?FRONTEND_URL is required}

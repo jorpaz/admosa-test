@@ -2,11 +2,28 @@ import 'dotenv/config';
 import path from 'path';
 import { z } from 'zod';
 
+function buildDatabaseUrl(): string {
+  if (process.env.DATABASE_URL) {
+    return process.env.DATABASE_URL;
+  }
+
+  const user = process.env.POSTGRES_USER;
+  const password = process.env.POSTGRES_PASSWORD;
+  const db = process.env.POSTGRES_DB;
+  if (!user || !password || !db) {
+    throw new Error('DATABASE_URL or POSTGRES_USER/POSTGRES_PASSWORD/POSTGRES_DB are required');
+  }
+
+  const host = process.env.POSTGRES_HOST ?? 'localhost';
+  const port = process.env.POSTGRES_PORT ?? '5432';
+  return `postgresql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}:${port}/${encodeURIComponent(db)}`;
+}
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(4000),
   FRONTEND_URL: z.string().url().default('http://localhost:4200'),
-  DATABASE_URL: z.string().min(1),
+  DATABASE_URL: z.string().min(1).default(buildDatabaseUrl),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 chars'),
   SESSION_MAX_AGE_MS: z.coerce.number().default(4 * 60 * 60 * 1000),
   // Cookie configuration:

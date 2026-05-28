@@ -1,7 +1,16 @@
 # =====================================================================
-# Stack completo para demo: Postgres + Backend + Adminer
-# Arrancar todo con: docker compose up --build
+# Stack ADMOSA: Postgres + Backend
+#
+# Setup (VPN o local):
+#   cp .env.example .env
+#   # Editar .env con secretos generados (ver README o instrucciones)
+#   docker compose up --build -d
+#
+# Adminer solo debug: docker compose --profile debug up -d
 # =====================================================================
+
+x-db-url: &db-url
+  postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
 
 services:
   postgres:
@@ -9,21 +18,17 @@ services:
     container_name: admosa_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: admosa
-      POSTGRES_PASSWORD: admosa
-      POSTGRES_DB: admosa_test
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
     volumes:
       - admosa_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admosa -d admosa_test"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 5s
       timeout: 5s
       retries: 10
 
-  # Job que corre una sola vez al arrancar: migra schema + carga seeds.
-  # Sale (exit 0) cuando termina; el backend espera a que complete.
   db-init:
     build:
       context: ./backend
@@ -34,11 +39,11 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://admosa:admosa@postgres:5432/admosa_test
-      SESSION_SECRET: demo-secret-cambiar-en-produccion-este-string-tiene-mas-de-32-chars
-      FRONTEND_URL: http://localhost:4200
+      DATABASE_URL: *db-url
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      FRONTEND_URL: ${FRONTEND_URL:?FRONTEND_URL is required}
     command: sh -c "node dist/db/migrate.js && node dist/db/seed.js"
-    restart: "no"
+    restart: 'no'
 
   backend:
     build:
@@ -54,25 +59,27 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgresql://admosa:admosa@postgres:5432/admosa_test
-      SESSION_SECRET: demo-secret-cambiar-en-produccion-este-string-tiene-mas-de-32-chars
-      SESSION_MAX_AGE_MS: 14400000
-      FRONTEND_URL: http://localhost:4200
+      DATABASE_URL: *db-url
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      SESSION_MAX_AGE_MS: ${SESSION_MAX_AGE_MS:-14400000}
+      FRONTEND_URL: ${FRONTEND_URL:?FRONTEND_URL is required}
+      SESSION_COOKIE_SAMESITE: ${SESSION_COOKIE_SAMESITE:-none}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
       STORAGE_PATH: /app/storage
-      MAX_FILE_SIZE_BYTES: 52428800
-      LOGIN_RATE_LIMIT_MAX: 500
+      MAX_FILE_SIZE_BYTES: ${MAX_FILE_SIZE_BYTES:-52428800}
+      LOGIN_RATE_LIMIT_MAX: ${LOGIN_RATE_LIMIT_MAX:-500}
     ports:
-      - "4000:4000"
+      - '${BACKEND_PORT:-4000}:4000'
     volumes:
-      # Persistir archivos fuera del contenedor (sobreviven a rebuilds)
       - admosa_storage:/app/storage
 
   adminer:
+    profiles: ['debug']
     image: adminer:latest
     container_name: admosa_adminer
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - '8080:8080'
     depends_on:
       postgres:
         condition: service_healthy

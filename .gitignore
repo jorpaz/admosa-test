@@ -27,6 +27,7 @@ coverage/
 # Angular (frontend)
 frontend/.angular/
 frontend/dist/
+.firebase/
 
 # Lockfiles de otros gestores (el proyecto usa pnpm)
 package-lock.json

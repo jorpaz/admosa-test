@@ -26,7 +26,12 @@ export const requireAuth = asyncHandler(async (req: Request, _res: Response, nex
       a.code            AS area_code,
       a.name            AS area_name,
       COALESCE(
-        (SELECT array_agg(am.area_id) FROM area_management am WHERE am.manager_id = u.id),
+        (
+          SELECT array_agg(am.area_id ORDER BY ar.name)
+          FROM area_management am
+          INNER JOIN areas ar ON ar.id = am.area_id
+          WHERE am.manager_id = u.id
+        ),
         ARRAY[]::uuid[]
       ) AS managed_area_ids,
       COALESCE(

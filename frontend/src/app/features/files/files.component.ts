@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -44,10 +44,30 @@ export class FilesComponent implements OnInit {
   private readonly filesService = inject(FilesService);
   private readonly snackBar = inject(MatSnackBar);
 
+  readonly allAreasValue = 'ALL';
+
   readonly files = signal<FileItem[]>([]);
   readonly loading = signal(true);
   readonly uploading = signal(false);
-  readonly uploadAreaId = signal<string | null>(null);
+  readonly selectedAreaId = signal<string>(this.allAreasValue);
+
+  readonly filteredFiles = computed(() => {
+    const all = this.files();
+    const selected = this.selectedAreaId();
+    if (!this.needsAreaSelector() || selected === this.allAreasValue) {
+      return all;
+    }
+    return all.filter((file) => file.areaId === selected);
+  });
+
+  readonly selectedAreaLabel = computed(() => {
+    if (this.selectedAreaId() === this.allAreasValue) {
+      return 'Todas las áreas';
+    }
+    return (
+      this.managedAreasForUpload().find((area) => area.id === this.selectedAreaId())?.name ?? '—'
+    );
+  });
 
   readonly displayedColumns = [
     'name',
@@ -67,11 +87,10 @@ export class FilesComponent implements OnInit {
   readonly roleLabels = ROLE_LABELS;
 
   ngOnInit(): void {
-    this.initUploadArea();
     this.refresh();
   }
 
-  needsUploadAreaSelection(): boolean {
+  needsAreaSelector(): boolean {
     const user = this.auth.user();
     return user?.roleCode === 'MANAGER' && user.managedAreaIds.length > 1;
   }
@@ -85,19 +104,16 @@ export class FilesComponent implements OnInit {
     }));
   }
 
-  private initUploadArea(): void {
-    const areas = this.managedAreasForUpload();
-    if (areas.length > 0 && !this.uploadAreaId()) {
-      this.uploadAreaId.set(areas[0].id);
-    }
-  }
-
   private resolveUploadAreaId(): string | undefined {
     const user = this.auth.user();
     if (!user || user.roleCode !== 'MANAGER') {
       return undefined;
     }
-    return this.uploadAreaId() ?? user.managedAreaIds[0];
+    const selected = this.selectedAreaId();
+    if (selected === this.allAreasValue) {
+      return undefined;
+    }
+    return selected;
   }
 
   refresh(): void {
@@ -125,6 +141,10 @@ export class FilesComponent implements OnInit {
     if (!file) return;
 
     const areaId = this.resolveUploadAreaId();
+    if (this.needsAreaSelector() && !areaId) {
+      this.snackBar.open('Selecciona un área antes de subir el archivo', 'Cerrar', { duration: 4000 });
+      return;
+    }
 
     this.uploading.set(true);
     this.filesService.upload(file, areaId).subscribe({

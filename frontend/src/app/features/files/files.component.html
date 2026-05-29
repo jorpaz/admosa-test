@@ -6,10 +6,11 @@
     </div>
 
     <div class="header-actions">
-      @if (needsUploadAreaSelection()) {
+      @if (needsAreaSelector()) {
         <mat-form-field appearance="outline" class="upload-area-field">
-          <mat-label>Área del archivo</mat-label>
-          <mat-select [value]="uploadAreaId()" (valueChange)="uploadAreaId.set($event)">
+          <mat-label>Área</mat-label>
+          <mat-select [value]="selectedAreaId()" (valueChange)="selectedAreaId.set($event)">
+            <mat-option [value]="allAreasValue">Todas las áreas</mat-option>
             @for (area of managedAreasForUpload(); track area.id) {
               <mat-option [value]="area.id">{{ area.name }}</mat-option>
             }
@@ -34,11 +35,11 @@
 
   <div class="stat-grid">
     <div class="stat-card">
-      <strong>{{ files().length }}</strong>
+      <strong>{{ filteredFiles().length }}</strong>
       <span>Archivos visibles</span>
     </div>
     <div class="stat-card">
-      <strong>{{ auth.user() ? workspaceLabel(auth.user()!) : '—' }}</strong>
+      <strong>{{ needsAreaSelector() ? selectedAreaLabel() : (auth.user() ? workspaceLabel(auth.user()!) : '—') }}</strong>
       <span>Área de trabajo</span>
     </div>
     <div class="stat-card">
@@ -51,6 +52,9 @@
     <div class="permissions-banner">
       <mat-icon>info</mat-icon>
       <p>{{ permissionsHint(user) }}</p>
+      @if (needsAreaSelector()) {
+        <p class="area-filter-hint">El selector de área filtra la tabla y define dónde se sube el archivo.</p>
+      }
     </div>
   }
 
@@ -66,8 +70,14 @@
         <h3>Sin archivos todavía</h3>
         <p>Sube tu primer archivo para comenzar.</p>
       </div>
+    } @else if (filteredFiles().length === 0) {
+      <div class="empty-state">
+        <mat-icon>filter_alt</mat-icon>
+        <h3>Sin archivos en {{ selectedAreaLabel() }}</h3>
+        <p>Cambia de área o sube un archivo en esta área.</p>
+      </div>
     } @else {
-      <table mat-table [dataSource]="files()" class="files-table">
+      <table mat-table [dataSource]="filteredFiles()" class="files-table">
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef>Archivo</th>
           <td mat-cell *matCellDef="let file">

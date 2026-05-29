@@ -1,4 +1,5 @@
 import { AuthenticatedUser } from '../types';
+import { ForbiddenError, ValidationError } from '../utils/errors';
 
 export type FileScope =
   | { kind: 'none' }
@@ -56,6 +57,35 @@ export function getAuditScope(user: AuthenticatedUser): FileScope {
         : { kind: 'none' };
     case 'USER':
       return { kind: 'own', userId: user.id };
+  }
+}
+
+export function resolveUploadAreaId(
+  user: AuthenticatedUser,
+  requestedAreaId?: string | null
+): string | null {
+  switch (user.roleCode) {
+    case 'USER':
+    case 'CHIEF':
+      if (!user.areaId) {
+        throw new ValidationError('Tu usuario no tiene área asignada');
+      }
+      return user.areaId;
+    case 'MANAGER': {
+      if (user.managedAreaIds.length === 0) {
+        throw new ValidationError('No tienes áreas asignadas');
+      }
+      const areaId = requestedAreaId?.trim() || null;
+      if (areaId) {
+        if (!user.managedAreaIds.includes(areaId)) {
+          throw new ForbiddenError('No puedes subir archivos a esa área');
+        }
+        return areaId;
+      }
+      return user.managedAreaIds[0];
+    }
+    case 'ADMIN':
+      return requestedAreaId ?? null;
   }
 }
 

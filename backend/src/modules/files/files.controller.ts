@@ -5,6 +5,7 @@ import {
   getViewableFilesScope,
   getDownloadableFilesScope,
   getDeletableFilesScope,
+  resolveUploadAreaId,
 } from '../../services/permissionService';
 import {
   insertFile,
@@ -34,7 +35,7 @@ export async function upload(req: Request, res: Response): Promise<void> {
       mimeType: req.file.mimetype,
       sizeBytes: req.file.size,
       ownerId: user.id,
-      areaId: user.areaId,
+      areaId: resolveUploadAreaId(user, req.body?.areaId),
     });
 
     await logAudit({

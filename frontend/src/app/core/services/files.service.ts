@@ -11,9 +11,12 @@ export class FilesService {
     return this.http.get<{ files: FileItem[] }>(`${environment.apiUrl}/files`);
   }
 
-  upload(file: File) {
+  upload(file: File, areaId?: string) {
     const form = new FormData();
     form.append('file', file);
+    if (areaId) {
+      form.append('areaId', areaId);
+    }
     return this.http.post<{ file: FileItem }>(`${environment.apiUrl}/files`, form);
   }
 

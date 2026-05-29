@@ -222,10 +222,3 @@ backend/
 | `pnpm run db:migrate` | Crea/recrea schema |
 | `pnpm run db:seed` | Inserta usuarios y datos de prueba |
 | `pnpm run db:reset` | Migrate + seed (limpia todo) |
-
-## Próximos pasos (no incluidos por scope)
-
-- Tests automatizados (Vitest/Jest)
-- Rotación periódica de sesiones expiradas (cron)
-- Cifrado en reposo de archivos sensibles
-- Multi-tenancy si se requiere

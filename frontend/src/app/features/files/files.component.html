@@ -6,6 +6,16 @@
     </div>
 
     <div class="header-actions">
+      @if (needsUploadAreaSelection()) {
+        <mat-form-field appearance="outline" class="upload-area-field">
+          <mat-label>Área del archivo</mat-label>
+          <mat-select [value]="uploadAreaId()" (valueChange)="uploadAreaId.set($event)">
+            @for (area of managedAreasForUpload(); track area.id) {
+              <mat-option [value]="area.id">{{ area.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
       <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
       <button mat-flat-button color="primary" (click)="fileInput.click()" [disabled]="uploading()">
         @if (uploading()) {

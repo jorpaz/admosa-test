@@ -7,6 +7,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { AuthService } from '../../core/services/auth.service';
 import { FilesService } from '../../core/services/files.service';
 import { FileItem, ROLE_LABELS } from '../../core/models';
@@ -31,6 +33,8 @@ import {
     MatSnackBarModule,
     MatChipsModule,
     MatTooltipModule,
+    MatFormFieldModule,
+    MatSelectModule,
   ],
   templateUrl: './files.component.html',
   styleUrl: './files.component.css',
@@ -43,6 +47,7 @@ export class FilesComponent implements OnInit {
   readonly files = signal<FileItem[]>([]);
   readonly loading = signal(true);
   readonly uploading = signal(false);
+  readonly uploadAreaId = signal<string | null>(null);
 
   readonly displayedColumns = [
     'name',
@@ -62,7 +67,37 @@ export class FilesComponent implements OnInit {
   readonly roleLabels = ROLE_LABELS;
 
   ngOnInit(): void {
+    this.initUploadArea();
     this.refresh();
+  }
+
+  needsUploadAreaSelection(): boolean {
+    const user = this.auth.user();
+    return user?.roleCode === 'MANAGER' && user.managedAreaIds.length > 1;
+  }
+
+  managedAreasForUpload(): { id: string; name: string }[] {
+    const user = this.auth.user();
+    if (!user) return [];
+    return user.managedAreaIds.map((id, index) => ({
+      id,
+      name: user.managedAreaNames[index] ?? id,
+    }));
+  }
+
+  private initUploadArea(): void {
+    const areas = this.managedAreasForUpload();
+    if (areas.length > 0 && !this.uploadAreaId()) {
+      this.uploadAreaId.set(areas[0].id);
+    }
+  }
+
+  private resolveUploadAreaId(): string | undefined {
+    const user = this.auth.user();
+    if (!user || user.roleCode !== 'MANAGER') {
+      return undefined;
+    }
+    return this.uploadAreaId() ?? user.managedAreaIds[0];
   }
 
   refresh(): void {
@@ -89,8 +124,10 @@ export class FilesComponent implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
+    const areaId = this.resolveUploadAreaId();
+
     this.uploading.set(true);
-    this.filesService.upload(file).subscribe({
+    this.filesService.upload(file, areaId).subscribe({
       next: () => {
         this.uploading.set(false);
         input.value = '';

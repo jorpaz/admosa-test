@@ -18,6 +18,10 @@
   gap: 8px;
 }
 
+.upload-area-field {
+  min-width: 180px;
+}
+
 .permissions-banner {
   display: flex;
   align-items: flex-start;

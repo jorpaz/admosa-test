@@ -137,7 +137,6 @@ export class AuditComponent implements OnInit {
     });
   }
 
-  /** Si /audit/filters no está disponible, reconstruye opciones desde el listado. */
   private loadFiltersFallback(): void {
     this.auditService.list({ limit: 200, offset: 0 }).subscribe({
       next: ({ entries }) => {

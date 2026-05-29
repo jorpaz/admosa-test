@@ -1,8 +1,6 @@
 import bcrypt from 'bcrypt';
 import { pool, withTransaction } from '../config/db';
 
-// Password único para todos los usuarios de prueba.
-// En la entrega real se documenta en el README.
 const TEST_PASSWORD = 'Admosa2025!';
 const BCRYPT_ROUNDS = 12;
 
@@ -10,10 +8,8 @@ async function seed() {
   const passwordHash = await bcrypt.hash(TEST_PASSWORD, BCRYPT_ROUNDS);
 
   await withTransaction(async (c) => {
-    // Limpiar en orden inverso de dependencias
     await c.query('TRUNCATE audit_log, sessions, files, area_management, users, areas, roles RESTART IDENTITY CASCADE');
 
-    // -------- ROLES --------
     const roles = [
       { code: 'USER',    name: 'Usuario estándar', description: 'Gestiona únicamente sus propios archivos' },
       { code: 'CHIEF',   name: 'Jefe de área',     description: 'Visualiza archivos de su área; elimina solo los propios' },
@@ -29,7 +25,6 @@ async function seed() {
       roleIds[r.code] = rows[0].id;
     }
 
-    // -------- AREAS --------
     const areas = [
       { code: 'OPS',     name: 'Operaciones' },
       { code: 'FIN',     name: 'Finanzas' },
@@ -44,9 +39,7 @@ async function seed() {
       areaIds[a.code] = rows[0].id;
     }
 
-    // -------- USERS (los 4 de prueba + algunos extras para validar scopes) --------
     const users = [
-      // === Los 4 obligatorios del enunciado ===
       { email: 'user@admosa.test',    full_name: 'Ana Usuario',       role: 'USER',    area: 'OPS'  },
       { email: 'chief@admosa.test',   full_name: 'Bruno Jefe',        role: 'CHIEF',   area: 'OPS'  },
       { email: 'manager@admosa.test', full_name: 'Carla Gerente',     role: 'MANAGER', area: null   },
@@ -69,9 +62,6 @@ async function seed() {
       userIds[u.email] = rows[0].id;
     }
 
-    // -------- AREA MANAGEMENT --------
-    // Carla (MANAGER) gestiona OPS y FIN. COMM queda sin gerente para probar
-    // que el gerente NO ve archivos de áreas que no gestiona.
     const carlaMgmt = [
       { manager: 'manager@admosa.test', area: 'OPS' },
       { manager: 'manager@admosa.test', area: 'FIN' },
@@ -83,7 +73,7 @@ async function seed() {
       );
     }
 
-    console.log('✓ Seed complete');
+    console.log('Seed complete');
     console.log('');
     console.log('Usuarios de prueba (password para todos: Admosa2025!):');
     console.log('  - user@admosa.test    → USER    (área OPS)');

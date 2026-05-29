@@ -26,9 +26,6 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1).default(buildDatabaseUrl),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 chars'),
   SESSION_MAX_AGE_MS: z.coerce.number().default(4 * 60 * 60 * 1000),
-  // Cookie configuration:
-  // - Local (mismo origen):  SAMESITE=strict, SECURE=false
-  // - Cross-domain (Firebase→Railway): SAMESITE=none,  SECURE=true
   SESSION_COOKIE_SAMESITE: z.enum(['strict', 'lax', 'none']).default('strict'),
   SESSION_COOKIE_SECURE: z.coerce.boolean().default(false),
   STORAGE_PATH: z.string().default('./storage'),
@@ -39,7 +36,7 @@ const envSchema = z.object({
 
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
-  console.error('❌ Invalid environment variables:', parsed.error.format());
+  console.error('Invalid environment variables:', parsed.error.format());
   process.exit(1);
 }
 

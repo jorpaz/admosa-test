@@ -12,7 +12,6 @@ export function canDeleteFile(user: User, file: FileItem): boolean {
   }
 }
 
-/** Texto de ayuda según el rol activo (banner de permisos). */
 export function permissionsHint(user: User): string {
   switch (user.roleCode) {
     case 'USER':
@@ -26,7 +25,6 @@ export function permissionsHint(user: User): string {
   }
 }
 
-/** Motivo por el que no se puede eliminar; null si sí puede. */
 export function deleteBlockedReason(user: User, file: FileItem): string | null {
   if (canDeleteFile(user, file)) return null;
 
@@ -60,7 +58,6 @@ export function formatDate(value: string): string {
   }).format(new Date(value));
 }
 
-/** Etiqueta legible del área de trabajo según rol. */
 export function workspaceLabel(user: User): string {
   switch (user.roleCode) {
     case 'ADMIN':

@@ -2,6 +2,22 @@
 
 Prueba técnica para perfil senior. Plataforma web que permite la gestión segura de archivos por usuario, aplicando control de acceso por roles y áreas.
 
+## Entrega y repositorio
+
+| Recurso | Enlace |
+|---------|--------|
+| **Repositorio Git** | https://github.com/jorpaz/admosa-test |
+| **Frontend (producción)** | https://ai-agent-builder-atom.web.app |
+| **API (producción)** | https://admosa-test.uversa.app |
+
+### Documentación
+
+| Documento | Descripción |
+|-----------|-------------|
+| [Manual de usuario](docs/MANUAL_USUARIO.md) | Guía de uso de la aplicación por rol |
+| [Manual técnico](docs/MANUAL_TECNICO.md) | Arquitectura, despliegue, API y seguridad |
+| [Diagrama ER](docs/DIAGRAMA_ER.md) | Modelo entidad-relación de PostgreSQL |
+
 ## Stack
 
 - **Backend**: Node.js + Express + TypeScript
@@ -107,7 +123,7 @@ Toda decisión de acceso pasa por `src/services/permissionService.ts`. Este serv
 - Defensa contra path traversal en `FileStorage.resolvePath()`.
 
 #### 4. Modelo de datos
-Ver `docs/ARCHITECTURE.md` para el diagrama ER completo y justificaciones. Puntos relevantes:
+Ver [`docs/DIAGRAMA_ER.md`](docs/DIAGRAMA_ER.md) para el diagrama ER completo y [`docs/MANUAL_TECNICO.md`](docs/MANUAL_TECNICO.md) para justificaciones. Puntos relevantes:
 - **`area_management` (N:M)**: un Gerente puede gestionar múltiples áreas.
 - **`files.area_id` desnormalizado**: los archivos pertenecen al área *donde se cargaron*, no a la actual del usuario. Esto protege la visibilidad histórica del Jefe si el dueño cambia de área.
 - **Soft delete**: `files.is_deleted` preserva la integridad referencial del historial.
@@ -163,6 +179,19 @@ Cada acción relevante se registra en `audit_log` con metadata JSONB. El log es 
 - **Sesiones server-side**: el logout invalida realmente la sesión.
 
 ## Estructura del proyecto
+
+```
+admosa-test/
+├── backend/             API Express + TypeScript
+├── frontend/            Angular SPA
+├── docs/                Manuales y diagrama ER
+├── deploy/              Plantilla nginx
+├── docker-compose.yml
+├── .env.example
+└── README.md
+```
+
+### Backend
 
 ```
 backend/

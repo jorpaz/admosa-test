@@ -7,8 +7,6 @@ import { upload, list, download, remove } from './files.controller';
 
 const router = Router();
 
-// Multer en memoria — el servicio de almacenamiento controla la escritura
-// (no dejamos que multer escriba a disco con nombres arbitrarios)
 const uploader = multer({
   storage: multer.memoryStorage(),
   limits: {

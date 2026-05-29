@@ -49,13 +49,6 @@ function resolveScopedQuery(req: Request) {
   return appendAuditListFilters(base, filters);
 }
 
-/**
- * Devuelve el historial de acciones aplicando el scope del rol.
- *
- * Estrategia: hacemos JOIN con files para poder filtrar acciones de archivos
- * por área. Las acciones que no involucran archivos (LOGIN, LOGOUT) solo
- * son visibles para ADMIN.
- */
 export async function listAudit(req: Request, res: Response): Promise<void> {
   const { limit, offset } = parseListQuery(req);
   const scoped = resolveScopedQuery(req);
@@ -99,7 +92,6 @@ export async function listAudit(req: Request, res: Response): Promise<void> {
   });
 }
 
-/** Opciones de filtro disponibles dentro del alcance del rol. */
 export async function getAuditFilters(req: Request, res: Response): Promise<void> {
   const scoped = resolveAuditScopeOnly(req);
 

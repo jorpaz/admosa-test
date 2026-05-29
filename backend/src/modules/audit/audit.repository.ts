@@ -11,9 +11,6 @@ export interface AuditScopeQuery {
   params: unknown[];
 }
 
-/**
- * Construye el WHERE base según el rol (sin filtros de UI).
- */
 export function buildAuditScopeQuery(scope: FileScope): AuditScopeQuery | null {
   const params: unknown[] = [];
 

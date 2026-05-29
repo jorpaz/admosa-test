@@ -9,11 +9,6 @@ interface AuditEntry {
   ipAddress?: string | null;
 }
 
-/**
- * Registra una acción en el historial. Es "fire and forget" intencional:
- * un fallo en auditoría NUNCA debe romper la operación principal.
- * En su lugar, loguea a stderr para que sea visible en monitoreo.
- */
 export async function logAudit(entry: AuditEntry): Promise<void> {
   try {
     await pool.query(

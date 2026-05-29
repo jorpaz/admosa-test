@@ -1,17 +1,5 @@
 import { AuthenticatedUser } from '../types';
 
-/**
- * Servicio de permisos centralizado.
- *
- * Principio de diseño: TODA decisión de acceso a archivos pasa por este servicio.
- * No hay autorización dispersa en controladores. Si un permiso cambia, se cambia
- * en un único lugar.
- *
- * Convención: cada función retorna un "scope" (alcance) que el repositorio
- * traduce a una cláusula WHERE. Esto evita el anti-patrón "traer todo y filtrar
- * en memoria", que es lento y propenso a bugs de seguridad.
- */
-
 export type FileScope =
   | { kind: 'none' }
   | { kind: 'own'; userId: string }
@@ -19,9 +7,6 @@ export type FileScope =
   | { kind: 'areas'; areaIds: string[] }
   | { kind: 'all' };
 
-/**
- * Determina qué archivos puede VISUALIZAR (listar) el usuario.
- */
 export function getViewableFilesScope(user: AuthenticatedUser): FileScope {
   switch (user.roleCode) {
     case 'ADMIN':
@@ -39,21 +24,10 @@ export function getViewableFilesScope(user: AuthenticatedUser): FileScope {
   }
 }
 
-/**
- * Determina qué archivos puede DESCARGAR el usuario.
- * Por diseño coincide con el scope de visualización (no se puede descargar
- * lo que no se puede ver), pero lo separamos para que sea fácil divergir.
- */
 export function getDownloadableFilesScope(user: AuthenticatedUser): FileScope {
   return getViewableFilesScope(user);
 }
 
-/**
- * Determina qué archivos puede ELIMINAR el usuario.
- *
- * Nota importante: el Jefe de área puede VER archivos de su área pero
- * solo puede ELIMINAR los suyos. Esto es asimétrico respecto a la visualización.
- */
 export function getDeletableFilesScope(user: AuthenticatedUser): FileScope {
   switch (user.roleCode) {
     case 'ADMIN':
@@ -63,16 +37,11 @@ export function getDeletableFilesScope(user: AuthenticatedUser): FileScope {
         ? { kind: 'areas', areaIds: user.managedAreaIds }
         : { kind: 'none' };
     case 'CHIEF':
-      // El enunciado es explícito: "No podrá eliminar archivos de otros usuarios"
-      return { kind: 'own', userId: user.id };
     case 'USER':
       return { kind: 'own', userId: user.id };
   }
 }
 
-/**
- * Scope para consulta del historial.
- */
 export function getAuditScope(user: AuthenticatedUser): FileScope {
   switch (user.roleCode) {
     case 'ADMIN':
@@ -90,15 +59,6 @@ export function getAuditScope(user: AuthenticatedUser): FileScope {
   }
 }
 
-/**
- * Construye fragmento SQL para filtrar archivos según el scope.
- * Retorna `null` si el scope es 'none' (el caller debe corto-circuitar).
- *
- * @param scope    Scope determinado por las funciones anteriores
- * @param tableAlias Alias de la tabla files en la query (ej. 'f')
- * @param startParamIndex Índice de inicio para placeholders ($1, $2, ...)
- * @returns { clause, params } o null si no hay acceso
- */
 export function buildFileScopeClause(
   scope: FileScope,
   tableAlias: string,

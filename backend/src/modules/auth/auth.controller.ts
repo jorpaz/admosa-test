@@ -26,7 +26,6 @@ export async function login(req: Request, res: Response): Promise<void> {
   const { email, password } = loginSchema.parse(req.body);
   const ipAddress = req.ip || null;
 
-  // 1. Buscar usuario
   const { rows } = await pool.query(
     `SELECT u.id, u.password_hash, u.is_active, r.code AS role_code
      FROM users u INNER JOIN roles r ON r.id = u.role_id
@@ -34,8 +33,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     [email]
   );
 
-  // 2. Validar credenciales (timing-attack safe: siempre comparamos un hash)
-  // Si el usuario no existe usamos un hash dummy con el mismo costo.
+  // Timing-safe: siempre comparamos un hash aunque el usuario no exista
   const DUMMY_HASH = '$2b$12$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01';
   const user = rows[0];
   const hash = user?.password_hash ?? DUMMY_HASH;
@@ -51,7 +49,6 @@ export async function login(req: Request, res: Response): Promise<void> {
     throw new UnauthorizedError('Credenciales inválidas');
   }
 
-  // 3. Crear sesión
   const expiresAt = new Date(Date.now() + env.SESSION_MAX_AGE_MS);
   const { rows: sessionRows } = await pool.query(
     `INSERT INTO sessions (user_id, expires_at, ip_address, user_agent)
@@ -60,7 +57,6 @@ export async function login(req: Request, res: Response): Promise<void> {
   );
   const sessionId = sessionRows[0].id;
 
-  // 4. Enviar cookie
   res.cookie(SESSION_COOKIE, sessionId, cookieOptions());
 
   await logAudit({

@@ -8,7 +8,6 @@ import { env } from '../../config/env';
 
 const router = Router();
 
-// Rate limit en login — más permisivo en desarrollo/demo (configurable vía .env)
 const loginLimiter = rateLimit({
   windowMs: env.LOGIN_RATE_LIMIT_WINDOW_MS,
   max: env.LOGIN_RATE_LIMIT_MAX,

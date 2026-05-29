@@ -6,17 +6,12 @@ import { AuthenticatedUser, RoleCode } from '../types';
 
 const SESSION_COOKIE = 'admosa.sid';
 
-/**
- * Loads the authenticated user from the session cookie.
- * Attaches `req.user` and `req.sessionId` for downstream handlers.
- */
 export const requireAuth = asyncHandler(async (req: Request, _res: Response, next: NextFunction) => {
   const sessionId = req.cookies?.[SESSION_COOKIE];
   if (!sessionId) {
     throw new UnauthorizedError();
   }
 
-  // Una sola query: sesión + usuario + rol + áreas gestionadas
   const result = await pool.query(
     `
     SELECT
@@ -59,7 +54,6 @@ export const requireAuth = asyncHandler(async (req: Request, _res: Response, nex
   const row = result.rows[0];
 
   if (new Date(row.expires_at) < new Date()) {
-    // Limpiar sesión expirada
     await pool.query('DELETE FROM sessions WHERE id = $1', [sessionId]);
     throw new UnauthorizedError('Sesión expirada');
   }
@@ -85,10 +79,6 @@ export const requireAuth = asyncHandler(async (req: Request, _res: Response, nex
   next();
 });
 
-/**
- * Restricts a route to specific role(s).
- * Use AFTER requireAuth.
- */
 export function requireRole(...allowed: RoleCode[]) {
   return (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user) {

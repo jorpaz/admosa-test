@@ -24,7 +24,6 @@ export function errorHandler(
     return;
   }
 
-  // Errores no controlados — no exponer detalles internos en producción
   console.error('[UNHANDLED]', err);
   res.status(500).json({
     error: {

@@ -18,10 +18,6 @@ export interface FileRecord {
   uploadedAt: Date;
 }
 
-/**
- * Lista archivos visibles según el scope determinado por el servicio de permisos.
- * El filtrado ocurre en la query — nunca en memoria.
- */
 export async function listFiles(scope: FileScope): Promise<FileRecord[]> {
   const clause = buildFileScopeClause(scope, 'f', 1);
   if (!clause) return [];
@@ -46,11 +42,6 @@ export async function listFiles(scope: FileScope): Promise<FileRecord[]> {
   return rows.map(rowToFile);
 }
 
-/**
- * Obtiene un archivo SI el scope lo permite. Retorna null en caso contrario.
- * Esto es clave: incluso conociendo el UUID, un usuario no puede acceder
- * a archivos fuera de su scope.
- */
 export async function getFileWithinScope(
   fileId: string,
   scope: FileScope

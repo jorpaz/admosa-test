@@ -60,13 +60,11 @@ export async function listUsers(_req: Request, res: Response): Promise<void> {
 export async function createUser(req: Request, res: Response): Promise<void> {
   const data = createSchema.parse(req.body);
 
-  // Verificar email único
   const existing = await pool.query('SELECT 1 FROM users WHERE email = $1', [data.email]);
   if (existing.rowCount && existing.rowCount > 0) {
     throw new ConflictError('Ya existe un usuario con ese email');
   }
 
-  // Resolver role_id
   const { rows: roleRows } = await pool.query('SELECT id FROM roles WHERE code = $1', [data.roleCode]);
   if (roleRows.length === 0) throw new NotFoundError('Rol no existe');
 

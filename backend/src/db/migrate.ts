@@ -10,7 +10,7 @@ async function migrate() {
 
   console.log(`Running ${files.length} migration(s)...`);
 
-  // Drop schema for clean slate (dev only — en prod usaríamos versionado)
+  // Drop schema for clean slate (dev only)
   await pool.query(`
     DROP TABLE IF EXISTS audit_log, sessions, files, area_management, users, areas, roles CASCADE;
     DROP FUNCTION IF EXISTS set_updated_at CASCADE;
@@ -22,7 +22,7 @@ async function migrate() {
     await pool.query(sql);
   }
 
-  console.log('✓ Migrations complete');
+  console.log('Migrations complete');
   await pool.end();
 }
 

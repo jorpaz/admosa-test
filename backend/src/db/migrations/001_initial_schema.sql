@@ -1,16 +1,5 @@
--- =====================================================================
--- ADMOSA — Plataforma de gestión segura de archivos
--- Schema inicial
--- =====================================================================
-
--- Extensión para UUIDs
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- ---------------------------------------------------------------------
--- ROLES
--- Tabla en vez de ENUM para permitir agregar roles sin migraciones
--- de schema. El campo `code` es la clave estable consultada por código.
--- ---------------------------------------------------------------------
 CREATE TABLE roles (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code        VARCHAR(32) NOT NULL UNIQUE,
@@ -19,9 +8,6 @@ CREATE TABLE roles (
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ---------------------------------------------------------------------
--- AREAS
--- ---------------------------------------------------------------------
 CREATE TABLE areas (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code        VARCHAR(32) NOT NULL UNIQUE,
@@ -29,9 +15,6 @@ CREATE TABLE areas (
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ---------------------------------------------------------------------
--- USERS
--- ---------------------------------------------------------------------
 CREATE TABLE users (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email           VARCHAR(255) NOT NULL UNIQUE,
@@ -48,11 +31,6 @@ CREATE INDEX idx_users_email     ON users(email);
 CREATE INDEX idx_users_role      ON users(role_id);
 CREATE INDEX idx_users_area      ON users(area_id);
 
--- ---------------------------------------------------------------------
--- AREA_MANAGEMENT
--- Relación N:M entre gerentes y áreas. Un gerente puede gestionar
--- varias áreas; un área podría ser co-gestionada.
--- ---------------------------------------------------------------------
 CREATE TABLE area_management (
     manager_id  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     area_id     UUID NOT NULL REFERENCES areas(id) ON DELETE CASCADE,
@@ -63,14 +41,6 @@ CREATE TABLE area_management (
 CREATE INDEX idx_area_mgmt_manager ON area_management(manager_id);
 CREATE INDEX idx_area_mgmt_area    ON area_management(area_id);
 
--- ---------------------------------------------------------------------
--- FILES
--- - storage_name: UUID usado como nombre en disco (jamás el original)
--- - area_id: desnormalizado al momento de la carga (decisión consciente:
---   los archivos pertenecen al área donde se cargaron, no a la actual
---   del usuario; protege la visibilidad histórica del Jefe)
--- - is_deleted: soft delete para preservar integridad del historial
--- ---------------------------------------------------------------------
 CREATE TABLE files (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     original_name   VARCHAR(255) NOT NULL,
@@ -89,11 +59,6 @@ CREATE INDEX idx_files_owner      ON files(owner_id) WHERE is_deleted = FALSE;
 CREATE INDEX idx_files_area       ON files(area_id)  WHERE is_deleted = FALSE;
 CREATE INDEX idx_files_uploaded   ON files(uploaded_at DESC);
 
--- ---------------------------------------------------------------------
--- AUDIT_LOG
--- Historial inmutable de acciones. metadata como JSONB para flexibilidad
--- (IP en login, tamaño en descarga, etc.) sin migrar schema.
--- ---------------------------------------------------------------------
 CREATE TABLE audit_log (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id      UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -108,10 +73,6 @@ CREATE INDEX idx_audit_user       ON audit_log(user_id, occurred_at DESC);
 CREATE INDEX idx_audit_file       ON audit_log(file_id, occurred_at DESC);
 CREATE INDEX idx_audit_occurred   ON audit_log(occurred_at DESC);
 
--- ---------------------------------------------------------------------
--- SESSIONS
--- Almacenadas server-side para poder invalidar al cerrar sesión.
--- ---------------------------------------------------------------------
 CREATE TABLE sessions (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -124,9 +85,6 @@ CREATE TABLE sessions (
 CREATE INDEX idx_sessions_user    ON sessions(user_id);
 CREATE INDEX idx_sessions_expires ON sessions(expires_at);
 
--- ---------------------------------------------------------------------
--- Trigger para updated_at en users
--- ---------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN

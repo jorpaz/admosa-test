@@ -11,7 +11,6 @@ import {
 
 const router = Router();
 
-// Toda esta sección requiere ADMIN
 router.use(requireAuth, requireRole('ADMIN'));
 
 router.get('/users',      asyncHandler(listUsers));

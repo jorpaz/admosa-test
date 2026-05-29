@@ -26,10 +26,8 @@ export async function upload(req: Request, res: Response): Promise<void> {
   const storageName = fileStorage.generateStorageName();
 
   try {
-    // 1. Persistir en disco PRIMERO. Si falla, no se crea registro.
     await fileStorage.save(storageName, req.file.buffer);
 
-    // 2. Registrar en DB. Si falla, hay que limpiar el disco.
     const fileId = await insertFile({
       originalName: req.file.originalname,
       storageName,
@@ -56,7 +54,6 @@ export async function upload(req: Request, res: Response): Promise<void> {
       },
     });
   } catch (err) {
-    // Compensación: si la DB falló, limpiar archivo huérfano
     await fileStorage.delete(storageName).catch(() => undefined);
     throw err;
   }
@@ -104,7 +101,6 @@ export async function download(req: Request, res: Response): Promise<void> {
       metadata: { intent: 'download' },
       ipAddress: req.ip || null,
     });
-    // No revelamos si el archivo existe o no: misma respuesta para ambos casos
     throw new NotFoundError('Archivo no encontrado o sin acceso');
   }
 
@@ -120,7 +116,6 @@ export async function download(req: Request, res: Response): Promise<void> {
     ipAddress: req.ip || null,
   });
 
-  // Encabezados seguros — Content-Disposition con escapado del nombre
   const safeName = file.originalName.replace(/"/g, '');
   res.setHeader('Content-Type', file.mimeType);
   res.setHeader('Content-Length', file.sizeBytes);
@@ -129,7 +124,6 @@ export async function download(req: Request, res: Response): Promise<void> {
     `attachment; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(file.originalName)}`
   );
 
-  // Stream para no cargar todo en memoria
   fileStorage.createReadStream(file.storageName).pipe(res);
 }
 
@@ -140,8 +134,6 @@ export async function remove(req: Request, res: Response): Promise<void> {
 
   const file = await getFileWithinScope(fileId, scope);
   if (!file) {
-    // Distinguir entre "no existe" y "no puedes": para los logs sí distinguimos
-    // (operativamente útil), pero para el usuario la respuesta es la misma.
     const viewableScope = getViewableFilesScope(user);
     const visible = await getFileWithinScope(fileId, viewableScope);
     await logAudit({
@@ -157,7 +149,6 @@ export async function remove(req: Request, res: Response): Promise<void> {
     throw new NotFoundError('Archivo no encontrado');
   }
 
-  // Soft delete en DB; el archivo físico se conserva por si se quiere recuperar
   await softDeleteFile(fileId, user.id);
 
   await logAudit({
